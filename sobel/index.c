@@ -2,7 +2,6 @@
 typedef unsigned char uc8;
 int js_log(long i);
 int getIndex(int x, int y, int width, int height);
-int getGray(int i);
 void sobel(int *p, int width, int height)
 {
     // 目标指针
@@ -10,6 +9,8 @@ void sobel(int *p, int width, int height)
 
     // 来源指针
     int *s;
+
+    // 遍历步数表
     int around[16] = {
         -1, -1,
         0, -1,
@@ -19,12 +20,29 @@ void sobel(int *p, int width, int height)
         0, 1,
         -1, 1,
         -1, 0};
+    
+    // 缓存初始地址
     int _p = p;
+
+    // 目标地址，给目标指针地址赋值用
+    int _t;
+
+    // 像素四周八个灰度值
+    long a[8];
+
+    // 水平加权平均值
+    long gx;
+
+    // 垂直加权平均值
+    long gy;
+
+    // sobel计算结果
+    long g;
+
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            long a[8];
             for (int j = 0, i = 0; j < 16; j += 2, i++)
             {
                 s= _p + getIndex(
@@ -33,8 +51,7 @@ void sobel(int *p, int width, int height)
                     width,
                     height);
                 // *s : 0xrrggbbaa
-                a[i] = (*s)*-1;
-                
+                a[i] = (long)(*s*-1);
             }
             
             /**
@@ -42,27 +59,28 @@ void sobel(int *p, int width, int height)
              * 7   3
              * 6 5 4
              */
-            long gx = -a[0] - 2 * a[1] - a[3] + a[6] + 2 * a[5] + a[4];
-            long gy = -a[0] - 2 * a[7] - a[6] + a[2] + 2 * a[3] + a[4];
-            long g = (long)sqrt((double)(gx * gx + gy * gy));
-            int _t;
-            if(x==3238&&y==1624){
-                js_log(gx);
-                js_log(gy);
-            }
+            gx = -a[0] - 2 * a[1] - a[3] + a[6] + 2 * a[5] + a[4];
+            gy = -a[0] - 2 * a[7] - a[6] + a[2] + 2 * a[3] + a[4];
+            g = (long)sqrt((double)(gx * gx + gy * gy));
+            _t;
             
-
             g =0xffffffff-g;
             
+            // 二值化
             if(g<0xffffffff){
                 g=0;
             }
+
+            // 小端序存储int 0xrrggbbaa -> 0xaabbggrr
             _t = g;
             _t = _t | (g<<8);
             _t = _t | (g<<16);
             _t = _t | (0xff<<24);
 
+            // 获得地址
             t = _p + getIndex(x, y, width, height)+width*height*4;
+
+            // 写入内存
             *t = _t;
             
         }
@@ -82,14 +100,3 @@ int getIndex(int x, int y, int width, int height)
     return (y * width + x) * 4;
 }
 
-int getGray(int i)
-{
-    int res;
-    int *p;
-    p = i;
-    int b = (0x0000ff00 & *p)>>8;
-    int g = (0x00ff0000 & *p)>>16;
-    int r = (0xff000000 & *p)>>24;
-    res = (r+g+b)*100/3;
-    return res;
-}
