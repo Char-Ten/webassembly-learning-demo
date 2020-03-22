@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+	</head>
+	<body>
+		<script src="./useString.js"></script>
+		<script>
+			var mod = useString({
+				onRuntimeInitialized() {
+					printCharToPage();
+					scanfCharAndPrintLength2Page();
+				}
+			});
+			function printCharToPage() {
+				let str = "";
+				let i = mod._myCharAt();
+				while (mod.HEAP8[i] !== 0) {
+					str += `%${mod.HEAPU8[i].toString(16)}`;
+					i++;
+				}
+				document.body.appendChild(
+					document.createTextNode(decodeURIComponent(str))
+				);
+			}
+
+			function scanfCharAndPrintLength2Page() {
+				let div = document.createElement("div");
+				let inp = document.createElement("input");
+				let otp = document.createElement("output");
+
+				inp.addEventListener("input", function() {
+                    let utf8Array = new Uint8Array([...encodeUtf8(inp.value),0]);
+                    // 分配utf-8内存
+                    let p = mod._malloc(utf8Array.length*utf8Array.BYTES_PER_ELEMENT);
+
+                    mod.HEAPU8.set(utf8Array,p);
+
+					let v = mod._stringLen(p);
+					mod._readutf8(p)
+                    otp.value = ` utf-8 bytes length:${v}`;
+                    mod._free(p);
+				});
+
+				div.appendChild(inp);
+				div.appendChild(otp);
+				document.body.appendChild(div);
+			}
+
+			/**
+             * @see https://juejin.im/post/5e328bdff265da3e4569ad9b
+             * */
+			function encodeUtf8(str) {
+				var bytes = [];
+				for (ch of str) {
+					// for...of循环，能正确识别 32 位的 UTF-16 字符， 可以查阅资料了解。
+					let code = ch.codePointAt(0);
+					if (code >= 65536 && code <= 1114111) {
+						// 位运算， 补齐8位
+						bytes.push((code >> 18) | 0xf0);
+						bytes.push(((code >> 12) & 0x3f) | 0x80);
+						bytes.push(((code >> 6) & 0x3f) | 0x80);
+						bytes.push((code & 0x3f) | 0x80);
+					} else if (code >= 2048 && code <= 65535) {
+						bytes.push((code >> 12) | 0xe0);
+						bytes.push(((code >> 6) & 0x3f) | 0x80);
+						bytes.push((code & 0x3f) | 0x80);
+					} else if (code >= 128 && code <= 2047) {
+						bytes.push((code >> 6) | 0xc0);
+						bytes.push((code & 0x3f) | 0x80);
+					} else {
+						bytes.push(code);
+					}
+				}
+				return bytes;
+			}
+		</script>
+	</body>
+</html>

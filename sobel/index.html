@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobel</title>
+    <style>
+        *{padding:0;margin:0}
+        button{padding:2px 5px}
+    </style>
+</head>
+<body>
+    <canvas id="cvs"></canvas>
+    <div id="btns">
+        <input type="file" id="file" accept="image/*"/>
+        <button onclick="getEU4Map()">加载欧陆风云4省份图（11m）</button>
+        <button onclick="drawSourceImage()">绘制原图</button>
+        <button onclick="drawBorderWithJS()">js sobel绘制</button>
+        <button onclick="drawBorderWithWasm()">wasm sobel绘制</button>
+        <button onclick="drawBorderWithWebGL()">webgl sobel绘制</button>
+    </div>
+    <pre id="log"></pre>
+    <script src="./index.js?v=1"></script>
+</body>
+</html>
