@@ -62,7 +62,6 @@ void sobel(int *p, int width, int height)
             gx = -a[0] - 2 * a[1] - a[3] + a[6] + 2 * a[5] + a[4];
             gy = -a[0] - 2 * a[7] - a[6] + a[2] + 2 * a[3] + a[4];
             g = (long)sqrt((double)(gx * gx + gy * gy));
-            _t;
             
             g =0xffffffff-g;
             
