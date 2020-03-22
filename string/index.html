@@ -40,7 +40,6 @@
                     mod.HEAPU8.set(utf8Array,p);
 
 					let v = mod._stringLen(p);
-					mod._readutf8(p)
                     otp.value = ` utf-8 bytes length:${v}`;
                     mod._free(p);
 				});
