@@ -1,5 +1,4 @@
 #include <math.h>
-typedef unsigned char uc8;
 int js_log(long i);
 int getIndex(int x, int y, int width, int height);
 void sobel(int *p, int width, int height)
